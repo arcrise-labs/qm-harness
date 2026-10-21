@@ -5,10 +5,10 @@ name: dep-age
 on:
   pull_request:
     paths:
-      - '**/package-lock.json'
-      - '.dep-age-allow'
-      - 'scripts/dep-age-check.mjs'
-      - '.github/workflows/dep-age.yml'
+      - "**/package-lock.json"
+      - ".dep-age-allow"
+      - "scripts/dep-age-check.mjs"
+      - ".github/workflows/dep-age.yml"
 permissions:
   contents: read
 jobs:
