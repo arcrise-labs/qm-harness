@@ -1,0 +1,29 @@
+name: dep-age
+# 依存のクールダウン（2026-10-22）: package-lock.json に新しく入った版が、公開から 7 日以上たち、
+# 非推奨でないかを確かめる。.npmrc の min-release-age は lock に入った版を止めないので、ここで止める。
+# 急ぎのセキュリティ修正は、承認のうえ .dep-age-allow に「名前@版 日付 理由」を書く。
+on:
+  pull_request:
+    paths:
+      - "**/package-lock.json"
+      - ".dep-age-allow"
+      - "scripts/dep-age-check.mjs"
+      - ".github/workflows/dep-age.yml"
+permissions:
+  contents: read
+jobs:
+  dep-age:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version-file: .node-version
+      - name: 新しく入った依存の公開日と非推奨を確かめる
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: node scripts/dep-age-check.mjs --base "origin/$BASE_REF"

@@ -148,9 +148,15 @@ To blunt npm supply-chain attacks (compromised maintainer publishes a malicious
 version that is caught and yanked within hours), newly published package versions must
 age for **7 days** before they can enter a lockfile. This is enforced by
 `min-release-age=7` in `.npmrc` (honored by npm ≥ 11.10.0, pinned via `.node-version`).
-The cooldown gates `npm install`/`npm update`; CI installs with `npm ci` from the
-committed lockfiles and is unaffected. Urgent security fixes can be pulled in ahead of
-the window by installing the exact version explicitly.
+The cooldown gates `npm install`/`npm update` only. A version already in a lockfile is
+installed by `npm ci` regardless of its age (verified with npm 11.19.1 on 2026-10-22), and
+npm 10 ignores `min-release-age`, so the `dep-age` workflow (`scripts/dep-age-check.mjs`)
+rejects lockfile changes that add a version younger than 7 days or a deprecated version.
+Each nested package (`cli/`, `plugins/*/`) carries its own `.npmrc`, because npm reads the
+project `.npmrc` from the package root. Naming an exact version does not bypass the
+cooldown (npm rejects it with ETARGET); urgent security fixes need an approved
+`npm install --min-release-age=0 <name>@<version>` and an entry in `.dep-age-allow`
+with the date and reason.
 
 ## Supported versions
 
